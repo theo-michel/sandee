@@ -1,4 +1,4 @@
-import time
+
 
 # Import phase functions
 from sandee.phases import (

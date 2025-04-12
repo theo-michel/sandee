@@ -1,0 +1,5 @@
+httpx==0.24.1
+websockets==11.0.3
+sounddevice==0.4.6
+scipy==1.11.3
+pygame==2.5.2 

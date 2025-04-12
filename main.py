@@ -1,7 +1,7 @@
 import time
 
 # Import phase functions
-from phases import (
+from sandee.phases import (
     run_conversation_phase,
     run_object_detection_phase,
     run_approach_trash_phase,
@@ -11,7 +11,7 @@ from phases import (
     run_reset_phase
 )
 # Import utility functions if needed directly (e.g., for initialization outside phases)
-from robot_control import move_robot # Keep if move_robot needed directly in main
+from sandee.robot_control import move_robot # Keep if move_robot needed directly in main
 
 # Assume necessary imports for Kiwi, ElevenLabs, Mistral, Segmentation Model, LeRobot, Camera, Robot Control
 

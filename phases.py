@@ -1,9 +1,9 @@
 import time
 
 # Import functions from other modules
-from perception import speech_to_text, detect_trash
-from communication import process_with_llm, text_to_speech
-from robot_control import move_robot
+from sandee.perception import speech_to_text, detect_trash
+from sandee.communication import process_with_llm, text_to_speech
+from sandee.robot_control import move_robot
 # Assume necessary imports for LeRobot policy
 
 def run_conversation_phase():

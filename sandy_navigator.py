@@ -14,8 +14,130 @@ from lerobot.common.robot_devices.robots.configs import FeetechMotorsBusConfig
 from lerobot.common.robot_devices.motors.utils import make_motors_buses_from_configs
 from lerobot.common.robot_devices.robots.mobile_manipulator import LeKiwi
 
+import mistralai
 
-def direct_wheel_command(robot: LeKiwi, command: str, duration: float = 2.0):
+import os
+from PIL import Image
+import base64
+from io import BytesIO
+from mistralai import Mistral
+
+client = mistralai.Mistral(
+    api_key = "")
+
+def analyze_image_in_context(image, client: Mistral, model_name="mistral-small-latest"):
+    try:
+        # Calculate new dimensions while preserving aspect ratio
+        width, height = image.size
+        max_dim = 1024
+        
+        if width > max_dim or height > max_dim:
+            if width > height:
+                new_width = max_dim
+                new_height = int(height * (max_dim / width))
+            else:
+                new_height = max_dim
+                new_width = int(width * (max_dim / height))
+            
+            image = image.resize((new_width, new_height), Image.LANCZOS)
+        
+        print(f"Loaded image with size: {image.size}")
+        
+        # Convert the image to base64
+        buffered = BytesIO()
+        image.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        
+        # Load few-shot learning example images
+        examples = []
+        few_shot_dir = "/home/raspberrypi/lerobot/lerobot/images_vlm"
+        example_images = [
+            {"path": "image_0_1.jpg", "label": 1},
+            {"path": "image_1_0.jpg", "label": 0},
+            {"path": "image_2_1.jpg", "label": 1},
+            {"path": "image_3_0.jpg", "label": 0}
+        ]
+        
+        for example in example_images:
+            try:
+                example_path = os.path.join(few_shot_dir, example["path"])
+                example_img = Image.open(example_path)
+                
+                # Resize example images if needed
+                width, height = example_img.size
+                max_dim = 1024
+                if width > max_dim or height > max_dim:
+                    if width > height:
+                        new_width = max_dim
+                        new_height = int(height * (max_dim / width))
+                    else:
+                        new_height = max_dim
+                        new_width = int(width * (max_dim / height))
+                    example_img = example_img.resize((new_width, new_height), Image.LANCZOS)
+                
+                # Convert example image to base64
+                example_buffered = BytesIO()
+                example_img.save(example_buffered, format="JPEG")
+                example_img_str = base64.b64encode(example_buffered.getvalue()).decode()
+                
+                examples.append({
+                    "image": f"data:image/jpeg;base64,{example_img_str}",
+                    "label": "yes" if example["label"] == 1 else "no"
+                })
+            except Exception as e:
+                print(f"Error loading example image {example['path']}: {str(e)}")
+
+        # Refined System Prompt: Focus on the specific task and output format
+        system_prompt = (
+            "Your task is to determine if a specific object, a grey/blue metallic RedBull can, "
+            "is the closest object to the camera in the provided image. "
+            "Ignore natural objects like seaweed, shells, crabs, or rocks when determining closeness. "
+            "Respond ONLY with 'yes' or 'no' in lowercase without punctuation."
+        )
+        
+        # Refined User Prompt: Structure examples clearly and ask the specific question
+        user_content = [
+            {"type": "text", "text": "Analyze the following examples to understand the task, then evaluate the final image."}
+        ]
+        
+        # Add structured examples to user content
+        for idx, example in enumerate(examples):
+            # Provide reasoning specific to the task
+            reasoning = "The RedBull can (grey/blue metallic object) is visible and closest." if example['label'] == 'yes' else "The RedBull can is either not visible or not the closest object."
+            user_content.extend([
+                {"type": "text", "text": f"--- Example {idx+1} ---"},
+                {"type": "image_url", "image_url": {"url": example["image"]}},
+                {"type": "text", "text": f"Reasoning: {reasoning}"},
+                {"type": "text", "text": f"Answer: {example['label']}"}
+            ])
+        
+        # Add the final query image and question
+        user_content.extend([
+             {"type": "text", "text": "--- End of Examples ---"},
+             {"type": "text", "text": "Now, analyze this new image:"},
+             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_str}"}},
+             {"type": "text", "text": "Is the RedBull can the closest object to the camera in this image?"}
+        ])
+        
+        # Make API call with refined prompts
+        chat_response = client.chat.complete(
+            model=model_name,
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content},
+            ],
+            temperature=0.0,  # Adjust temperature for creativity
+        )
+        
+        # Extract response
+        response = chat_response.choices[0].message.content
+        return response
+        
+    except Exception as e:
+        return f"Error processing image: {str(e)}"
+
+
+def direct_wheel_command(robot: LeKiwi, command: str, duration: float = 0.2):
     """
     Directly control the robot's wheels without using network communication.
     
@@ -117,7 +239,7 @@ def direct_wheel_command(robot: LeKiwi, command: str, duration: float = 2.0):
     robot.stop()
 
 
-def analyze_image_for_sand(frame, save_debug=True):
+def analyze_image_for_sand(frame, save_debug=False):
     """
     Analyze the image to detect sand (yellow pixels) and determine the ratio in each half.
     The image is split horizontally into left and right halves.
@@ -321,7 +443,7 @@ def main():
     parser = argparse.ArgumentParser(description='Sand Navigator for LeKiwi Robot')
     parser.add_argument('--camera', type=str, default=None, help='Camera device (e.g., /dev/video0, /dev/video1)')
     parser.add_argument('--camera-index', type=int, default=None, help='Camera index (e.g., 0, 1)')
-    parser.add_argument('--duration', type=float, default=1.0, help='Duration of each movement command')
+    parser.add_argument('--duration', type=float, default=0.5, help='Duration of each movement command')
     parser.add_argument('--interval', type=int, default=15, help='Frame interval for making decisions')
     parser.add_argument('--port', type=str, default='/dev/ttyACM0', help='Serial port for motor bus')
     parser.add_argument('--debug-only', action='store_true', help='Only process one frame and save debug images, then exit')
@@ -330,6 +452,11 @@ def main():
     cap = None
     motor_bus = None
     robot = None
+
+    # image_history = []
+    # action_history = []
+    # action_history_size = 4
+
     
     try:
         # Initialize video capture from camera
@@ -448,9 +575,18 @@ def main():
         # Create LeKiwi robot controller
         print("Initializing LeKiwi controller...")
         robot = LeKiwi(motor_bus)
+
+        def finish():
+            for i in range(5):
+                decision = "rotate_left"
+                direct_wheel_command(robot, decision, duration=0.5)
+            robot.stop()
+            print("Found the trash!")
+
         
         # Parameters for control logic
         frame_count = 0
+        vlm_interval = 8
         decision_interval = args.interval  # From command line args
         movement_duration = args.duration  # From command line args
         
@@ -471,10 +607,10 @@ def main():
         # use a fixed exposure
         cap.set(cv2.CAP_PROP_EXPOSURE, -4)
         cap.set(cv2.CAP_PROP_AUTO_WB, 0.0)
-        cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 6500) # Set manual white balance temperature to 4200K
-
+        # cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 6000) 
         global running
         while running: 
+            frame_count+=1
             ret, frame = cap.read()
             if not ret:
                 print("Failed to receive frame. Retrying...")
@@ -486,8 +622,22 @@ def main():
             try:
                 # Process frame and make decision every N frames
                 if frame_count % decision_interval == 0:
+                    if (frame_count // decision_interval) % vlm_interval == 0:
+                        print("Frame Count")
+                        # Convert frame to PIL image for VLM processing
+                        pil_image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                        
+                        # Process the image with history context
+                        response = analyze_image_in_context(pil_image, client)
+                        print(f"VLM Response: {response}")
+
+                        if response == "Yes":
+                            print("Found the trash!")
+                            finish()
+                            break
+
                     # Only save debug images occasionally to avoid filling storage
-                    save_debug = (frame_count % (decision_interval * 5) == 0)
+                    save_debug = (frame_count % (decision_interval * 100) == 0)
                     _, _, decision = analyze_image_for_sand(frame, save_debug=save_debug)
 
                     if decision =="kill":
@@ -496,8 +646,7 @@ def main():
 
                     direct_wheel_command(robot, decision, duration=movement_duration)
                 
-                # Increment frame counter
-                frame_count += 1
+
             except Exception as e:
                 print(f"Error processing frame: {e}")
             
@@ -520,6 +669,8 @@ def main():
         if robot is not None:
             print("Ensuring robot is stopped")
             robot.stop()
+
+
             
 
 

@@ -1,11 +1,26 @@
 import asyncio
 from typing import Optional
+from sandee.remote_control import execute_command, replay_commands
 from utils.eleven_labs_client import ElevenLabsClient
 from utils.mistral_client import MistralClient
 from utils.speech_to_text import WhisperClient
 
 from dotenv import load_dotenv
 
+from lerobot.common.robot_devices.robots.configs import LeKiwiRobotConfig
+from lerobot.common.robot_devices.robots.utils import Robot, make_robot_from_config
+from lerobot.common.robot_devices.robots.mobile_manipulator import MobileManipulator
+from lerobot.common.robot_devices.motors.utils import make_motors_buses_from_configs
+from lerobot.common.robot_devices.robots.configs import FeetechMotorsBusConfig
+import time
+import numpy as np
+import argparse
+from lerobot.common.robot_devices.utils import busy_wait, safe_disconnect
+
+
+from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
+
+from lerobot.common.robot_devices.control_utils import log_control_info
 load_dotenv()
 
 class BeachRobotAgent:
@@ -184,6 +199,21 @@ class BeachRobotAgent:
         # This would integrate with the object detection module
         
         # Placeholder for the actual cleaning logic
+        
+        lekiwi_config = LeKiwiRobotConfig()
+        mobile_manipulator = make_robot_from_config(lekiwi_config)
+
+        mobile_manipulator.connect()
+
+
+        try:
+            replay_commands(mobile_manipulator, "wave", 2.0)
+            # Policy
+            replay_commands(mobile_manipulator, "", 2.0)
+        except Exception as e:
+            print(f"Error: {str(e)}")
+        finally:
+            mobile_manipulator.disconnect()
         print("2. Moving toward detected trash...")
         print("3. Positioning arm...")
         print("4. Picking up trash...")

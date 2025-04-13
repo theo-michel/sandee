@@ -48,8 +48,8 @@ def execute_command(robot: MobileManipulator, command: str, duration: float = 2.
     robot.pressed_keys["rotate_right"] = False
     robot.teleop_step()
     
-def replay_commands(robot: MobileManipulator, commands: list[str], duration: float = 2.0):
-    dataset = LeRobotDataset("theo-michel/lekiwi_v5", root=None, episodes=[1])
+def replay_commands(robot: MobileManipulator, move: str, duration: float = 2.0,):
+    dataset = LeRobotDataset(f"theo-michel/{move}", root=None, episodes=[0])
     actions = dataset.hf_dataset.select_columns("action")
     if not robot.is_connected:
         robot.connect()

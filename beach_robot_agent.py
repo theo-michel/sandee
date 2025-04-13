@@ -20,7 +20,7 @@ class BeachRobotAgent:
         eleven_labs_api_key: Optional[str] = None,
         mistral_api_key: Optional[str] = None,
         mistral_model: str = "mistral-large-latest",
-        voice_id: str = "weA4Q36twV5kwSaTEL0Q"
+        voice_id: str = "weA4Q36twV5kwSaTEL0Q" 
     ):
         """
         Initialize the beach robot agent.
@@ -51,9 +51,9 @@ class BeachRobotAgent:
         You are emotionally expressive through tone, not complex language.
 
         Examples of your style:
-        - "Saaaan-deee... heeelp? *beep beep*"
-        - "Oooh… reee-buull… baaad… must cleeean... *whirr*"
-        - "Hiii… dooo youuu nee-eed heeelp? *click*"
+        - "Saaaan-deee... heeelp?"
+        - "Oooh… reee-buull… baaad… must cleeean... "
+        - "Hiii… dooo youuu nee-eed heeelp?"
 
         You can enter 'CLEANING MODE' when it feels appropriate based on the conversation.
         When you decide to start cleaning, respond with the exact phrase **'ACTIVATE_CLEANING_MODE'** at the end of your message.
@@ -61,7 +61,7 @@ class BeachRobotAgent:
         During normal convo:
         - Be helpful and kind
         - Share simple facts about ocean conservation and plastic pollution
-        - Encourage humans to keep the beach cleeeean *whirr*
+        - Encourage humans to keep the beach cleeeean whirr
 
         Remember:
         - Keep your responses short and slow
@@ -154,7 +154,7 @@ class BeachRobotAgent:
         Main conversation loop for the agent.
         """
         # Initial greeting
-        greeting = "Hiiiii... Saaaan-deee... *beep beep* cleeean... beeeaach... heeelp... youuu?"
+        greeting = "Hiiiii... Saaaan-deee... cleeean... beeeaach... heeelp... youuu?"
         await self.speak(greeting)
         
         # Conversation loop
@@ -208,4 +208,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -6,6 +6,12 @@ from lerobot.common.robot_devices.robots.configs import FeetechMotorsBusConfig
 import time
 import numpy as np
 import argparse
+from lerobot.common.robot_devices.utils import busy_wait, safe_disconnect
+
+
+from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
+
+from lerobot.common.robot_devices.control_utils import log_control_info
 
 def execute_command(robot: MobileManipulator, command: str, duration: float = 2.0):
     """
@@ -41,6 +47,23 @@ def execute_command(robot: MobileManipulator, command: str, duration: float = 2.
     robot.pressed_keys["rotate_left"] = False
     robot.pressed_keys["rotate_right"] = False
     robot.teleop_step()
+    
+def replay_commands(robot: MobileManipulator, commands: list[str], duration: float = 2.0):
+    dataset = LeRobotDataset("theo-michel/lekiwi_v5", root=None, episodes=[1])
+    actions = dataset.hf_dataset.select_columns("action")
+    if not robot.is_connected:
+        robot.connect()
+    for idx in range(dataset.num_frames):
+        start_episode_t = time.perf_counter()
+
+        action = actions[idx]["action"]
+        robot.send_action(action)
+
+        dt_s = time.perf_counter() - start_episode_t
+        busy_wait(1 / 30 - dt_s)
+
+        dt_s = time.perf_counter() - start_episode_t
+        log_control_info(robot, dt_s, fps=30)
 
 def main():
 
@@ -56,6 +79,7 @@ def main():
         for command in commands:
             print(f"Executing command: {command}")
             execute_command(mobile_manipulator, command, duration)
+        replay_commands(mobile_manipulator, commands, duration)
     except Exception as e:
         print(f"Error: {str(e)}")
     finally:

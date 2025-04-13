@@ -20,7 +20,7 @@ class BeachRobotAgent:
         eleven_labs_api_key: Optional[str] = None,
         mistral_api_key: Optional[str] = None,
         mistral_model: str = "mistral-large-latest",
-        voice_id: str = "21m00Tcm4TlvDq8ikWAM"  # Default ElevenLabs voice
+        voice_id: str = "weA4Q36twV5kwSaTEL0Q"
     ):
         """
         Initialize the beach robot agent.

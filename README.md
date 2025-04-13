@@ -41,6 +41,15 @@ The robot will:
 5. Eventually transition to cleaning mode when appropriate
 6. Detect and collect trash on the beach
 
+### Run just the navigator
+
+You must first install lerobot and place the sandy_navigator.py script inside the scripts folder.
+
+```
+python lerobot/scripts/sandy_navigator.py --duration 0.25 --camera "/dev/device2/"
+```
+
+
 ## Components
 
 - `speech_to_text.py`: Client for OpenAI's Whisper API for speech recognition

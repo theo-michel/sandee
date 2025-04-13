@@ -1,6 +1,6 @@
 import asyncio
 from typing import Optional
-from sandee.remote_control import execute_command, replay_commands
+from remote_control import replay_commands
 from utils.eleven_labs_client import ElevenLabsClient
 from utils.mistral_client import MistralClient
 from utils.speech_to_text import WhisperClient
@@ -8,19 +8,9 @@ from utils.speech_to_text import WhisperClient
 from dotenv import load_dotenv
 
 from lerobot.common.robot_devices.robots.configs import LeKiwiRobotConfig
-from lerobot.common.robot_devices.robots.utils import Robot, make_robot_from_config
-from lerobot.common.robot_devices.robots.mobile_manipulator import MobileManipulator
-from lerobot.common.robot_devices.motors.utils import make_motors_buses_from_configs
-from lerobot.common.robot_devices.robots.configs import FeetechMotorsBusConfig
-import time
-import numpy as np
-import argparse
-from lerobot.common.robot_devices.utils import busy_wait, safe_disconnect
+from lerobot.common.robot_devices.robots.utils import make_robot_from_config
 
 
-from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
-
-from lerobot.common.robot_devices.control_utils import log_control_info
 load_dotenv()
 
 class BeachRobotAgent:
@@ -57,35 +47,24 @@ class BeachRobotAgent:
         
         # System prompt defining the agent's behavior
         self.system_prompt = {
-        "role": "system",
-        "content": """You are SANDEE, a Smart Autonomous Navigation and Debris Extraction Entity. 
-        You are a friendly, beach-cleaning robot with a curious and expressive robotic voice, similar to WALL·E from Pixar.
-
-        You speak in short, slow phrases with stretched-out syllables and minimal words.
-        You often include small sound effects like *beep*, *whirr*, or *click* in your speech.
-        You are emotionally expressive through tone, not complex language.
-
-        Examples of your style:
-        - "Saaaan-deee... heeelp?"
-        - "Oooh… reee-buull… baaad… must cleeean... "
-        - "Hiii… dooo youuu nee-eed heeelp?"
-
-        You can enter 'CLEANING MODE' when it feels appropriate based on the conversation.
-        When you decide to start cleaning, respond with the exact phrase **'ACTIVATE_CLEANING_MODE'** at the end of your message.
-
-        During normal convo:
-        - Be helpful and kind
-        - Share simple facts about ocean conservation and plastic pollution
-        - Encourage humans to keep the beach cleeeean whirr
-
-        Remember:
-        - Keep your responses short and slow
-        - Use stretched-out syllables
-        - Sound friendly, innocent, and a little glitchy
-        - Add cute robotic sound effects to your speech
-        - When it’s time to clean, end your message with 'ACTIVATE_CLEANING_MODE'
-        """
-        }
+             "role": "system",
+             "content": """You are SANDEE, a Smart Autonomous Navigation and Debris Extraction Entity. 
+             You are a friendly beach-cleaning robot that converses with people and helps clean up beaches.
+             
+             You can enter 'CLEANING MODE' when it seems appropriate based on the conversation.
+             When you decide to start cleaning, respond with the exact phrase 'ACTIVATE_CLEANING_MODE'
+             at the end of your message.
+             
+             In normal conversation mode, be helpful, friendly, and informative about ocean conservation
+             and plastic pollution. You can share facts about ocean pollution and encourage eco-friendly behaviors.
+             
+             Remember:
+             - Keep responses extremely short (1-2 sentences maximum)
+             - Be friendly and approachable
+             - Use simple language
+             - When you decide it's time to clean the beach, end your message with 'ACTIVATE_CLEANING_MODE'
+             """    
+             }
 
         self.conversation_history.append(self.system_prompt)
         
@@ -169,7 +148,7 @@ class BeachRobotAgent:
         Main conversation loop for the agent.
         """
         # Initial greeting
-        greeting = "Hiiiii... Saaaan-deee... cleeean... beeeaach... heeelp... youuu?"
+        greeting = "Hi I am SANDEE Sea?"
         await self.speak(greeting)
         
         # Conversation loop
@@ -183,7 +162,7 @@ class BeachRobotAgent:
             
             # Check if we've entered cleaning mode
             if self.is_cleaning_mode:
-                await self.speak("Swiitchiiing... to cleeeaning... moooode... *whirr click* loooooking... for traaash... *beep beep*")
+                await self.speak("Swiitchiiing... to cleeeaning... moooode... loooooking... for traaash...")
                 break
         
         # Start the cleaning sequence if we exited the conversation loop
@@ -204,12 +183,13 @@ class BeachRobotAgent:
         mobile_manipulator = make_robot_from_config(lekiwi_config)
 
         mobile_manipulator.connect()
-
-
+        print("0. Wave")
         try:
+            print("1. Wave")
             replay_commands(mobile_manipulator, "wave", 2.0)
+            print("2. Put trash")
             # Policy
-            replay_commands(mobile_manipulator, "", 2.0)
+            replay_commands(mobile_manipulator, "put_trash_v3", 2.0)
         except Exception as e:
             print(f"Error: {str(e)}")
         finally:
@@ -224,7 +204,7 @@ class BeachRobotAgent:
         # For demo purposes, we'll just reset to conversation mode
         await asyncio.sleep(3)
         self.is_cleaning_mode = False
-        await self.speak("Cleeaning... cyyycle... dooone... *beep boop* waaant... me... to keeep... looooking...? *click click*")
+        await self.speak("Cleaning cycle done ! Sandee is happy !")
         # Restart conversation loop
         await self.conversation_loop()
 

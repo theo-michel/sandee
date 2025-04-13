@@ -79,7 +79,7 @@ def main():
         for command in commands:
             print(f"Executing command: {command}")
             execute_command(mobile_manipulator, command, duration)
-        replay_commands(mobile_manipulator, commands, duration)
+        replay_commands(mobile_manipulator, "put_trash_v3", 2.0)
     except Exception as e:
         print(f"Error: {str(e)}")
     finally:

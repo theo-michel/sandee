@@ -48,8 +48,8 @@ class WhisperClient:
             "model": model
         }
         
-        if language:
-            data["language"] = language
+
+        data["language"] = "en"
         
         if prompt:
             data["prompt"] = prompt

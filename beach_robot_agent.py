@@ -1,6 +1,10 @@
 import asyncio
+import random
+import subprocess
 from typing import Optional
+from lerobot.common.robot_devices.control_configs import RecordControlConfig
 from remote_control import replay_commands
+from utils.run_policy import record
 from utils.eleven_labs_client import ElevenLabsClient
 from utils.mistral_client import MistralClient
 from utils.speech_to_text import WhisperClient
@@ -60,7 +64,7 @@ class BeachRobotAgent:
              
              Remember:
              - Keep responses extremely short (1-2 sentences maximum)
-             - Be friendly and approachable
+             - Be friendly cool and approachable
              - Use simple language
              - When you decide it's time to clean the beach, end your message with 'ACTIVATE_CLEANING_MODE'
              """    
@@ -148,7 +152,7 @@ class BeachRobotAgent:
         Main conversation loop for the agent.
         """
         # Initial greeting
-        greeting = "Hi I am SANDEE Sea?"
+        greeting = "I found some trash what should I do ?"
         await self.speak(greeting)
         
         # Conversation loop
@@ -162,7 +166,6 @@ class BeachRobotAgent:
             
             # Check if we've entered cleaning mode
             if self.is_cleaning_mode:
-                await self.speak("Swiitchiiing... to cleeeaning... moooode... loooooking... for traaash...")
                 break
         
         # Start the cleaning sequence if we exited the conversation loop
@@ -187,19 +190,16 @@ class BeachRobotAgent:
         try:
             print("1. Wave")
             replay_commands(mobile_manipulator, "wave", 2.0)
-            print("2. Put trash")
-            # Policy
+            # run policy
+            print("2. Pick up the trash")
+            subprocess.run(["bash", "policy.bash"], cwd="../lerobot")
+            print("3. Put the trash in the basket")
             replay_commands(mobile_manipulator, "put_trash_v3", 2.0)
         except Exception as e:
             print(f"Error: {str(e)}")
         finally:
-            mobile_manipulator.disconnect()
-        print("2. Moving toward detected trash...")
-        print("3. Positioning arm...")
-        print("4. Picking up trash...")
-        print("5. Moving to trash basket...")
-        print("6. Depositing trash...")
-        print("7. Returning to scanning position...")
+            # mobile_manipulator.disconnect()
+            pass
         
         # For demo purposes, we'll just reset to conversation mode
         await asyncio.sleep(3)

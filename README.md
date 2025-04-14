@@ -2,12 +2,11 @@
 This is the code for the Voice and grasping of the can.
 We are running the policy running a bash file that we put in our Lerobot folder because we couldn't make it work in code in time.
 
-The movement policy was running on the raspberry pie in local, we will add it to the folder soon.
+The movement policy was running on the raspberry pie in local, we will add it to the folder soon. There also was a lot of modifications to make it work on the LeRobot folder to make it work.
 
 The robot is also scanning for vulnerabilities in the network as we where thinking that on the beach there are a lot of vulnerabilities, but we didn't put in on the demo.
 
-
-
+I don't think the project is runnable easily in it's entirety, please reach out if you need help or want to try. We will at least push all the used code to the folder today or tomorow. And then try to make it runnable all together one day maybe (we don't have the robot at home so hard to test)
 
 # SANDEE - Beach Cleaning Robot
 

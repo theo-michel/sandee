@@ -1,4 +1,10 @@
 # SANDEE - Beach Cleaning Robot
+# Disclaimer:
+This is the code for the Voice and grasping of the can.
+
+We are running the policy running a bash file that we put in our Lerobot folder because we couldn't make it work in code in time.
+The movement policy is in a seperate repo as it was running localy on the PI. We will add it soon !
+
 
 SANDEE (Smart Autonomous Navigation and Debris Extraction Entity) is a beach-cleaning robot built for a hackathon. It combines speech recognition, natural language processing, and text-to-speech capabilities to create an interactive experience while cleaning beaches.
 

@@ -2,6 +2,7 @@
 This is the code for the Voice and grasping of the can.
 We are running the policy running a bash file that we put in our Lerobot folder because we couldn't make it work in code in time.
 
+For the movement script, it should still work with the oirignal repo, but some changes were made to the lreobot repository that still need to be tracked. We'll link a fork of the repo with our changes soon.
 
 The robot is also scanning for vulnerabilities in the network as we where thinking that on the beach there are a lot of vulnerabilities, but we didn't put in on the demo.
 

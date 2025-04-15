@@ -2,7 +2,6 @@
 This is the code for the Voice and grasping of the can.
 We are running the policy running a bash file that we put in our Lerobot folder because we couldn't make it work in code in time.
 
-The movement policy was running on the raspberry pie in local, we will add it to the folder soon. There also was a lot of modifications to make it work on the LeRobot folder to make it work.
 
 The robot is also scanning for vulnerabilities in the network as we where thinking that on the beach there are a lot of vulnerabilities, but we didn't put in on the demo.
 
@@ -52,6 +51,8 @@ The robot will:
 6. Detect and collect trash on the beach
 
 ### Run just the navigator (movement)
+
+Pleasse note for the object scanning to work, you need to insert a mistral API key. For just the movement, you can remove any references to the function `analyze_image_in_context()`. 
 
 You must first install lerobot and place the sandy_navigator.py script inside the scripts folder.
 

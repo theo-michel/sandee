@@ -51,12 +51,23 @@ The robot will:
 5. Eventually transition to cleaning mode when appropriate
 6. Detect and collect trash on the beach
 
-### Run just the navigator
+### Run just the navigator (movement)
 
 You must first install lerobot and place the sandy_navigator.py script inside the scripts folder.
 
 ```
 python lerobot/scripts/sandy_navigator.py --duration 0.25 --camera "/dev/device2/"
+```
+
+You can find the code & algorithm for the movement inside the sandy_navigator.py file in the analyze_image_for_sand(frame) function.
+
+Here is a brief overview of the movement algorithm:
+
+```
+    Analyze the image to detect sand (yellow pixels) and determine the ratio in each half.
+    The image is split horizontally into left and right halves.
+    First identifies the predominant shade of yellow in the bottom 20% of the image (floor),
+    then detects similar colors throughout the image.
 ```
 
 
@@ -66,6 +77,7 @@ python lerobot/scripts/sandy_navigator.py --duration 0.25 --camera "/dev/device2
 - `eleven_labs_client.py`: Client for ElevenLabs text-to-speech API
 - `mistral_client.py`: Client for Mistral AI's language models
 - `beach_robot_agent.py`: Main agent integrating all components
+- `sandy_navigator.py`: Handles the movement and object detection.
 
 ## Extending the Project
 

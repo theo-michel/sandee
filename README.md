@@ -62,13 +62,16 @@ python lerobot/scripts/sandy_navigator.py --duration 0.25 --camera "/dev/device2
 You can find the code & algorithm for the movement inside the sandy_navigator.py file in the analyze_image_for_sand(frame) function.
 
 Here is a brief overview of the movement algorithm:
+1. First identifies the predominant shade of yellow in the bottom 20% of the image (floor), then detects similar colors throughout the image.
+2. The image is split horizontally into left and right halves.
+3. Calculate the ratio of these pixels in each half.
+4. Compare ratios and make decision
+   4.a If right side has almost no yellow (below minimum threshold) AND left has some, rotato left
+   4.b If left side has significantly more yellow than right side, rotate left
+   4.c If both sides have minimal sand content, rotate left
+   4.d Otherwise, go right
+    
 
-```
-    Analyze the image to detect sand (yellow pixels) and determine the ratio in each half.
-    The image is split horizontally into left and right halves.
-    First identifies the predominant shade of yellow in the bottom 20% of the image (floor),
-    then detects similar colors throughout the image.
-```
 
 
 ## Components

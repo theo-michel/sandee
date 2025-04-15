@@ -66,10 +66,11 @@ Here is a brief overview of the movement algorithm:
 2. The image is split horizontally into left and right halves.
 3. Calculate the ratio of these pixels in each half.
 4. Compare ratios and make decision
-   4.a If right side has almost no yellow (below minimum threshold) AND left has some, rotato left
-   4.b If left side has significantly more yellow than right side, rotate left
-   4.c If both sides have minimal sand content, rotate left
-   4.d Otherwise, go right
+   
+4.a If right side has almost no yellow (below minimum threshold) AND left has some, rotato left
+4.b If left side has significantly more yellow than right side, rotate left
+4.c If both sides have minimal sand content, rotate left
+4.d Otherwise, go right
     
 
 
